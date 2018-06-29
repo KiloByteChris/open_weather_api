@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<title>Week 3 skill building 3b</title>
+	<meta charset="utf-8" />
+
+	<!-- CSS -->
+	<link href="css/main.css" rel="stylesheet" />
+
+	<!-- JQUERY -->
+ 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+ 	<!-- MUSTACHE LIBRARY -->
+	<script src="js/mustache.js"></script>
+	<script>
+
+	// function that searches selects the values using the informtion from the text input and select box
+	function search() {
+
+		// Define variables with api infromation
+		var url = "http://api.openweathermap.org/data/2.5/";
+		var apiParam = "&appid="
+		var apiKey = "0d78f016d75e6ca170516578566505bd";
+
+		// select the values from the inputs
+		var report = $('#weatherReport').val();
+		var city = $('#cityInput').val();
+
+		//Build the url for the api request
+		url += report;
+		url += "?q=";
+		url += city;
+		url += apiParam;
+		url += apiKey;
+
+		// make the api request
+		var weatherAPI = $.ajax({
+			url: url,
+			method: 'GET',
+			dataType: 'JSON'
+		}).done( function(data){
+
+			// Decide which weather report was chosen so the differnt JSON can be used
+			if(report == "weather") {
+
+				// select the template
+				var template = $('#weatherTemplate').html();
+
+			}if(report == "forecast"){
+
+				// select the template
+				var template = $('#forecastTemplate').html();
+			}
+
+			// use mustache.js to combine the html template and the JSON object
+			var result = Mustache.render(template, data);
+
+			// apply the html returned from mustahce.js to the container div to display the results
+			$('#container').html(result);
+
+		}); // end .done
+	} // end search function
+	</script>
+</head>
+<body>
+	<div id="wrapper">
+		<header>
+			<h1>Skill Building #3 - Open Weather API</h1>
+		</header>
+		<main>
+
+			<h2>Welcome to the Weather Station</h2>
+
+			<!-- FORM -->
+			<div id="formDiv">
+				<label for="cityInput">Enter a City</label>
+				<input type="text" id="cityInput" name="cityInput" placeholder="portland">
+
+				<label for="weatherReport">Select a Weather Report</label>
+				<select id="weatherReport" name="weatherReport">
+					<option value="weather">Current Weather</option>
+					<option value="forecast">5 Day Forcast</option>
+				</select>
+				<button value="search" onclick="search()">Search</button>
+			</div><!-- end formDiv -->
+
+			<!-- WEATHER TEMPLATE -->
+			<script type="text/mustache" id="weatherTemplate">
+				<h2>Current Weather For: {{name}}</h2>
+
+				<div class="currentWeatherDiv">
+					<p>Current Temperature: {{main.temp}}</p>
+					<p>High Temperature: {{main.temp_max}}</p>
+					<p>Low Temperature: {{main.temp_min}}</p>
+					<p>Humidity: {{main.humidity}}</p>
+					<p>Pressure: {{main.pressure}}</p>
+					{{#weather}}
+						<img src="http://openweathermap.org/img/w/{{icon}}.png" />
+					{{/weather}}
+				</div>
+
+			</script>
+
+			<!-- FORECAST TEMPLATE -->
+			<script type="text/mustache" id="forecastTemplate">
+				<h2>5 Day Weather forecast For: {{city.name}}</h2>
+
+				{{#list}}
+					<div class="forecastWeatherDiv">
+						<h3 class="dateHeader">{{dt_txt}}</h3>
+						<p>Current Tempurature: {{main.temp}}</p>
+						<p>Max Tempurature: {{main.temp_max}}</p>
+						<p>Min Tempurature: {{main.temp_min}}</p>
+						<p>Humidity: {{main.humidity}}</p>
+						<p>Pressure: {{main.pressure}}</p>
+						{{#weather}}
+							<img src="http://openweathermap.org/img/w/{{icon}}.png" />
+						{{/weather}}
+					</div>
+				{{/list}}
+
+			</script>
+			<div id="container">
+			</div>
+		</main>
+		<footer></footer>
+	</div> <!-- end wrapper -->
+</body>
+</html>
